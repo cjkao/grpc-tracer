@@ -1,0 +1,8 @@
+target/
+*.iml
+*.log
+ssl/
+*.crt
+*.pem
+.idea/
+server.key

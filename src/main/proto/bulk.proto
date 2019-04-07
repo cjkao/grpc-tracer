@@ -1,0 +1,69 @@
+
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+package cj.grpc;
+
+option java_multiple_files = true;
+
+enum Sentiment {
+    HAPPY = 0;
+    SLEEPY = 1;
+    ANGRY = 2;
+}
+
+message BulkRequest {
+    repeated Eunit oneSec=1;
+    Sentiment sentiment=2;
+    string subject=3;
+}
+message Eunit {
+    string name = 1;
+    int64 time=2;
+    float a1 = 11;
+    float a2 = 12;
+    float a3 = 13;
+    float a4 = 14;
+    float a5 = 15;
+    float a6 = 16;
+    float a7 = 17;
+    float a8 = 18;
+    float a9 = 19;
+    float a10 = 20;
+}
+
+// query a word
+message DictReq{
+   string word=1;
+   google.protobuf.Timestamp req_time = 2;
+   int32 pages=3;
+   bool acronym=4;
+}
+// reply
+message DictRes{
+   string explain=1;
+   string author=2;
+   string ref=3;
+}
+message BulkResponse {
+    string greeting = 1;
+    repeated Eunit oneSec=2;
+}
+
+message Query {
+    string family=1;
+    int64 begin=2;
+    int64 end=3;
+}
+
+// 4. service, unary request/response
+service BulkService {
+    rpc greeting(BulkRequest) returns (BulkResponse);
+    rpc author(DictReq) returns (DictRes);
+   //stream style
+    rpc greedyPut(stream BulkRequest) returns (BulkResponse);
+    rpc greedyPutStream(stream BulkRequest) returns (stream BulkResponse);
+    rpc query( Query) returns (BulkResponse);
+}
