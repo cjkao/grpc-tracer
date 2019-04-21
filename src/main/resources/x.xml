@@ -1,0 +1,17 @@
+<jmapper>
+    <class name="cj.poc.db.Customer">
+        <global>
+            <value name="map"/>
+            <classes>
+                <class name="javax.persistence.Tuple"/>
+            </classes>
+        </global>
+        <conversion name="fromMapToAll" from="map" type="DYNAMIC">
+            return (${destination.type}) ${source}.get("${destination.name.toUpperCase()}");
+        </conversion>
+        <conversion name="fromAllToMap" to="map" type="DYNAMIC">
+            ${destination}.put("${source.name}",${source});
+            return ${destination};
+        </conversion>
+    </class>
+</jmapper>

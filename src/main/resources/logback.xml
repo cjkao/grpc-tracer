@@ -16,7 +16,7 @@
     </appender>
     <logger name="io.netty" level="WARN"/>
     <logger name="io.grpc" level="WARN"/>
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
     </root>

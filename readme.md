@@ -29,7 +29,7 @@ export JAEGER_REPORTER_LOG_SPANS=true
 export JAEGER_SAMPLER_TYPE=const
 export JAEGER_SAMPLER_PARAM=1
 export JAEGER_SERVICE_NAME=grpc_server
- mvn exec:java -Dexec.mainClass="cj.poc.DictServer"
+ mvn exec:java -Dexec.mainClass="cj.poc.DictServer" -Dexec.args="-p main.properties"
 ```
 
 

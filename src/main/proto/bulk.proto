@@ -46,6 +46,11 @@ message DictRes{
    string explain=1;
    string author=2;
    string ref=3;
+   bytes bb=4;
+   repeated Row row=5;
+}
+message Row{
+    repeated string str=1;
 }
 message BulkResponse {
     string greeting = 1;
@@ -65,5 +70,5 @@ service BulkService {
    //stream style
     rpc greedyPut(stream BulkRequest) returns (BulkResponse);
     rpc greedyPutStream(stream BulkRequest) returns (stream BulkResponse);
-    rpc query( Query) returns (BulkResponse);
+    rpc query( Query) returns (DictRes);
 }

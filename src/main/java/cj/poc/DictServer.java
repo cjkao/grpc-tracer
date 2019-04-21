@@ -3,7 +3,8 @@ package cj.poc;
 import cj.grpc.BulkRequest;
 import cj.grpc.BulkResponse;
 import cj.grpc.BulkServiceGrpc;
-import cj.grpc.DictRes;
+import cj.poc.db.DBManagerHelper;
+import cj.poc.db.*;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -11,13 +12,11 @@ import io.jaegertracing.Configuration;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.ServerTracingInterceptor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.cli.*;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 
 /**
@@ -25,23 +24,43 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
  */
 @Slf4j
 public class DictServer {
-//    private static DataSrc poc = new DataSrc("/tmp/jdb",false);
+    //    private static DataSrc poc = new DataSrc("/tmp/jdb",false);
     Server server;
-//    private final Tracer tracer;
 
     static final Tracer tracer = Configuration.fromEnv().getTracer();
-    static public void main(String[] args) throws IOException, InterruptedException {
-        var dictServ = new DictServer();
-        dictServ.start();
-        dictServ.blockUntilShutdown();
 
+
+    static public void main(String[] args) throws IOException, InterruptedException, ParseException {
+        //Create a parser
+        CommandLineParser parser = new DefaultParser();
+
+        Options options = new Options();
+        options.addOption("p", "prop", true, "use prop file");
+        //parse the options passed as command line arguments
+        CommandLine cmd = parser.parse(options, args);
+
+        //***Interrogation Stage***
+        //hasOptions checks if option is present or not
+        if (cmd.hasOption("p")) {
+            var str = cmd.getOptionValue("p");
+            log.info("read :" + str);
+            DBManagerHelper.loadProp(str);
+            var dictServ = new DictServer();
+            dictServ.start();
+            dictServ.blockUntilShutdown();
+        } else {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("DB Serv", options);
+        }
     }
 
     public void start() throws IOException {
-        ServerTracingInterceptor tracingInterceptor = new ServerTracingInterceptor(tracer);
-
+        var tracercingInterceptor = new ServerTracingInterceptor(tracer);
         server = ServerBuilder.forPort(9090)
-                .addService(tracingInterceptor.intercept(new GreetingServiceImpl())).build().start();
+                .addService(tracercingInterceptor.intercept(new GreetingServiceImpl())).build().start();
+
+//        server = ServerBuilder.forPort(9090)
+//                .addService(new GreetingServiceImpl()).build().start();
 
         log.info("Starting server...");
         log.info("Server started!");
@@ -77,94 +96,57 @@ public class DictServer {
 
     public static class GreetingServiceImpl extends BulkServiceGrpc.BulkServiceImplBase {
         private static Set<StreamObserver<BulkResponse>> observers = ConcurrentHashMap.newKeySet();
-        @Override
-        public void author(cj.grpc.DictReq request,
-                           io.grpc.stub.StreamObserver<cj.grpc.DictRes> responseObserver) {
-            var res= DictRes.newBuilder().setAuthor("Johannes Brahms").setExplain("a man").setRef("wiki").build();
-            if((Math.random()>0.5))
-            responseObserver.onNext(res);
-            responseObserver.onCompleted();
-        }
-        @Override
-        public void greeting(BulkRequest request, StreamObserver<BulkResponse> responseObserver) {
-//            poc.runDB(request);
-            String greeting = "Hello there, " + request.getSubject() + " total:" + request.getOneSecCount();
-            var response = BulkResponse.newBuilder().setGreeting(greeting).build();
-            responseObserver.onNext(response);
-            observers.stream().forEach(k-> k.onNext(response));
-            responseObserver.onCompleted();
-        }
-
-        @Override
-        public StreamObserver<BulkRequest> greedyPut(final StreamObserver<BulkResponse> responseObserver) {
-            return new StreamObserver<BulkRequest>() {
-                private long sum = 0;
-                private long count = 0;
-                private BulkResponse.Builder builder = BulkResponse.newBuilder();
-
-                @Override
-                public void onNext(BulkRequest value) {
-                    responseObserver.onNext(builder.build());
-                    log.info("value: " + count++);
-//                    builder.(value.getName());
-                    var resp=BulkResponse.newBuilder().setGreeting("from other"+value.getSubject()).build();
-
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    responseObserver.onError(t);
-                }
-
-                @Override
-                public void onCompleted() {
-                    builder
-                            .setGreeting("toatl msg:" + count);
-                    responseObserver.onCompleted();
-                    observers.remove(responseObserver);
-                }
-            };
-        }
-
-
-
         /**
          */
-        public StreamObserver<BulkRequest> greedyPutStream(
-                StreamObserver<BulkResponse> responseObserver) {
+        @Override
+        public void query(cj.grpc.Query request,
+                          io.grpc.stub.StreamObserver<cj.grpc.DictRes> responseObserver) {
 
-            observers.add(responseObserver);
-            return new StreamObserver<BulkRequest>() {
-                private long sum = 0;
-                private long count = 0;
-                private BulkResponse.Builder builder = BulkResponse.newBuilder();
+           HDictDB db=new HDictDB();
+           var ret=db.getRes(request);
+           responseObserver.onNext(ret);
+           responseObserver.onCompleted();
 
-                @Override
-                public void onNext(BulkRequest value) {
-                    log.info("value: " + count++);
-//                    builder.(value.getName());
-                    var resp=BulkResponse.newBuilder().setGreeting("server reply "+value.getSubject() + " "+ count).build();
-
-                    observers.stream().forEach(k-> k.onNext(resp));
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    responseObserver.onError(t);
-                    log.info("client err complete:__"  );
-                    observers.remove(responseObserver);
-                }
-
-                @Override
-                public void onCompleted() {
-                    log.info("client complete:__"  );
-                    builder
-                            .setGreeting("toatl msg:" + count);
-//                    responseObserver.onNext(builder.build());
-//                    responseObserver.onCompleted();
-                    observers.remove(responseObserver);
-                }
-            };
         }
+
+//        /**
+//         *
+//         */
+//        public StreamObserver<BulkRequest> greedyPutStream(
+//                StreamObserver<BulkResponse> responseObserver) {
+//
+//            observers.add(responseObserver);
+//            return new StreamObserver<BulkRequest>() {
+//                private long sum = 0;
+//                private long count = 0;
+//                private BulkResponse.Builder builder = BulkResponse.newBuilder();
+//
+//                @Override
+//                public void onNext(BulkRequest value) {
+//                    log.info("value: " + count++);
+////                    builder.(value.getName());
+//                    var resp = BulkResponse.newBuilder().setGreeting("server reply " + value.getSubject() + " " + count).build();
+//
+//                    observers.stream().forEach(k -> k.onNext(resp));
+//                }
+//
+//                @Override
+//                public void onError(Throwable t) {
+//                    responseObserver.onError(t);
+//                    log.info("client err complete:__");
+//                    observers.remove(responseObserver);
+//                }
+//
+//                @Override
+//                public void onCompleted() {
+//                    log.info("client complete:__");
+//                    builder
+//                            .setGreeting("toatl msg:" + count);
+////                    responseObserver.onNext(builder.build());
+////                    responseObserver.onCompleted();
+//                    observers.remove(responseObserver);
+//                }
+//            };
+//        }
     }
 }
