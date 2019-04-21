@@ -1,6 +1,9 @@
 package cj.poc;
 
-import cj.grpc.*;
+import cj.grpc.BulkRequest;
+import cj.grpc.BulkResponse;
+import cj.grpc.BulkServiceGrpc;
+import cj.grpc.Eunit;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -18,17 +21,17 @@ public class DictClientStream {
         var stub = //定義異步的stub
                 BulkServiceGrpc.newStub(channel);
 
-       log.info("---client stream rpc---");
+        log.info("---client stream rpc---");
         StreamObserver<BulkResponse> responseObserver = new StreamObserver<BulkResponse>() {
             @Override
             public void onNext(BulkResponse result) {
-               log.info("client stream--" + result.getGreeting());
+                log.info("client stream--" + result.getGreeting());
             }
 
             @Override
             public void onError(Throwable t) {
                 t.printStackTrace();
-               log.info("client stream--exception" );
+                log.info("client stream--exception");
             }
 
             @Override
@@ -38,7 +41,7 @@ public class DictClientStream {
             }
         };
 
-        var streamObs=stub.greedyPut(responseObserver);
+        var streamObs = stub.greedyPut(responseObserver);
 
         var begin = System.nanoTime();
         for (int time = 0; time < 10; time++) {
@@ -51,7 +54,7 @@ public class DictClientStream {
                         .setA4((float) Math.random())
                         .setA5((float) Math.random())
                         .setA2((float) Math.random())
-                        .setTime(time*i)
+                        .setTime(time * i)
                         .build();
                 oneList.add(eu);
             }
@@ -65,7 +68,7 @@ public class DictClientStream {
         streamObs.onCompleted();
         Thread.sleep(10000);
         var end = System.nanoTime();
-       log.info("time: "+(end - begin) / 1000000);
+        log.info("time: " + (end - begin) / 1000000);
 
     }
 }

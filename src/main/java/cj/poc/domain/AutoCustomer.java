@@ -1,4 +1,4 @@
-package cj.poc.db;
+package cj.poc.domain;
 
 //import com.google.auto.value.AutoValue;
 //import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -6,11 +6,11 @@ package cj.poc.db;
 //import javax.inject.Inject;
 //import javax.persistence.Tuple;
 //
-//import static cj.poc.db.AutoCustomer.field.*;
+//import static cj.poc.domain.AutoCustomer.field.*;
 
 //@AutoValue
 abstract class AutoCustomer {
-//     enum field{firstName,lastName,street,city};
+    //     enum field{firstName,lastName,street,city};
 //    @Inject
 //    @ConfigProperty(name = "customer")
     String sql; //="select firstName, lastName,street,city from CUSTOMER";

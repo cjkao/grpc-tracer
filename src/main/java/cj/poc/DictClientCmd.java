@@ -1,6 +1,8 @@
 package cj.poc;
 
-import cj.grpc.*;
+import cj.grpc.BulkRequest;
+import cj.grpc.BulkResponse;
+import cj.grpc.BulkServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;

@@ -2,7 +2,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-
+import "db.proto";
 
 package cj.grpc;
 
@@ -41,28 +41,11 @@ message DictReq{
    int32 pages=3;
    bool acronym=4;
 }
-// reply
-message DictRes{
-   string explain=1;
-   string author=2;
-   string ref=3;
-   bytes bb=4;
-   repeated Row row=5;
-}
-message Row{
-    repeated string str=1;
-}
+
 message BulkResponse {
     string greeting = 1;
     repeated Eunit oneSec=2;
 }
-
-message Query {
-    string family=1;
-    int64 begin=2;
-    int64 end=3;
-}
-
 // 4. service, unary request/response
 service BulkService {
     rpc greeting(BulkRequest) returns (BulkResponse);
@@ -70,5 +53,7 @@ service BulkService {
    //stream style
     rpc greedyPut(stream BulkRequest) returns (BulkResponse);
     rpc greedyPutStream(stream BulkRequest) returns (stream BulkResponse);
+
     rpc query( Query) returns (DictRes);
+    rpc queryStream( Query) returns (stream DictRes);
 }

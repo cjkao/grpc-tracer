@@ -1,4 +1,4 @@
-package cj.poc.db;
+package cj.poc.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

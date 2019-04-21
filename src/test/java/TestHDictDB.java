@@ -1,13 +1,11 @@
 import cj.grpc.DictRes;
 import cj.grpc.Row;
-import cj.poc.db.AdpCustomer;
+import cj.poc.domain.AdpCustomer;
 //import cj.poc.db.BuilderCustomer;
-import cj.poc.db.Customer;
+import cj.poc.domain.Customer;
 import cj.poc.db.DBManagerHelper;
-import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.slf4j.Logger;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -36,11 +34,6 @@ public class TestHDictDB {
         try {
             List<Tuple> todoList = q.getResultList();
 
-            em.close();
-            System.gc();
-            System.gc();
-            System.gc();
-            System.gc();
             var custList3 = new ArrayList<AdpCustomer>();
             long begin = System.nanoTime();
             for (var todo : todoList) {
@@ -106,7 +99,7 @@ public class TestHDictDB {
                             .append(todo.get(2, String.class))
                             .append("|||"+j)
                             .append(todo.get(3, String.class));
-                    var res =dicRes.setBb(ByteString.copyFrom(sb.toString().getBytes()));
+//                    var res =dicRes.setBb(ByteString.copyFrom(sb.toString().getBytes()));
                     sb.setLength(0);
                 }
                 dicRes.build();
@@ -124,7 +117,7 @@ public class TestHDictDB {
                             todo.get(2, String.class) +
                             "|||" +j+
                             todo.get(3, String.class);
-                    dicRes.setBb(ByteString.copyFromUtf8(str));
+//                    dicRes.setBb(ByteString.copyFromUtf8(str));
                 }
                 dicRes.build();
             }

@@ -6,11 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Properties;
 
 @Slf4j
@@ -24,8 +20,8 @@ public class DBManagerHelper {
     }
 
     public static EntityManager getEntityManager() {
-        if(emf==null){
-            emf = Persistence.createEntityManagerFactory("people",mainProperties);
+        if (emf == null) {
+            emf = Persistence.createEntityManagerFactory("people", mainProperties);
             threadLocal = new ThreadLocal<EntityManager>();
         }
         EntityManager em = threadLocal.get();
@@ -71,10 +67,10 @@ public class DBManagerHelper {
 
         FileInputStream file;
         String path = "./" + propName;
-        log.debug("load: "+ path );
+        log.debug("load: " + path);
         //the base folder is ./, the root of the main.properties file
         try {
-            file=new FileInputStream(path);
+            file = new FileInputStream(path);
             mainProperties.load(file);
             file.close();
         } catch (IOException e) {

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package cj.grpc;
+option java_multiple_files = true;
+// reply
+message DictRes{
+   repeated Row row=5;
+   //reserve for oracle 12c+ api
+   int32 size=6; //Total number of rows in the response. //optional
+   int32 page=7; //Page number of the current results. Optional
+   int32 pagelen=8 ; //number of row in current page
+}
+message Row{
+    repeated string str=1;
+}
+
+message Query {
+    string qstr=1;
+    repeated string bind=2;
+    int32 limit=3;
+    int32 begin=4;
+}
+
+

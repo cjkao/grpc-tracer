@@ -1,5 +1,5 @@
 <jmapper>
-    <class name="cj.poc.db.Customer">
+    <class name="cj.poc.domain.Customer">
         <global>
             <value name="map"/>
             <classes>

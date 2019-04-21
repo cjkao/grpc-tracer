@@ -1,10 +1,9 @@
 package cj.poc;
 
-import cj.grpc.BulkRequest;
 import cj.grpc.BulkResponse;
 import cj.grpc.BulkServiceGrpc;
 import cj.poc.db.DBManagerHelper;
-import cj.poc.db.*;
+import cj.poc.db.HDictDB;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -24,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class DictServer {
-    //    private static DataSrc poc = new DataSrc("/tmp/jdb",false);
     Server server;
 
     static final Tracer tracer = Configuration.fromEnv().getTracer();
@@ -68,9 +66,9 @@ public class DictServer {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                log.error("*** shutting down gRPC server since JVM is shutting down");
                 DictServer.this.stop();
-                System.err.println("*** server shut down");
+                log.error("*** server shut down");
             }
         });
     }
@@ -78,9 +76,9 @@ public class DictServer {
     public void stop() {
 
         if (server != null) {
-            System.err.println("*** shutting down db");
+            log.error("*** shutting down db");
 //            poc.close();
-            System.err.println("*** shutting down db ok");
+            log.error("*** shutting down db ok");
             server.shutdown();
         }
     }
@@ -96,16 +94,18 @@ public class DictServer {
 
     public static class GreetingServiceImpl extends BulkServiceGrpc.BulkServiceImplBase {
         private static Set<StreamObserver<BulkResponse>> observers = ConcurrentHashMap.newKeySet();
+
+
+        private HDictDB db = new HDictDB();
         /**
+         *
          */
         @Override
         public void query(cj.grpc.Query request,
                           io.grpc.stub.StreamObserver<cj.grpc.DictRes> responseObserver) {
-
-           HDictDB db=new HDictDB();
-           var ret=db.getRes(request);
-           responseObserver.onNext(ret);
-           responseObserver.onCompleted();
+            var ret = db.getRes(request);
+            responseObserver.onNext(ret);
+            responseObserver.onCompleted();
 
         }
 
