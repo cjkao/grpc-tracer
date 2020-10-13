@@ -25,7 +25,7 @@
     <jaeger-client.version>0.34.0</jaeger-client.version>
      <!--test -->
     <mockito-core.version>2.25.1</mockito-core.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
   </properties>
 
 
